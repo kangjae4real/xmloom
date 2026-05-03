@@ -12,7 +12,8 @@
 
 완료 기준:
 
-- `README.md`가 프로젝트 목적과 문서 인덱스를 제공한다.
+- `README.md`가 서비스 사용자를 위한 프로젝트 목적과 사용 방법을 제공한다.
+- `docs/agents/repository-brief.md`가 개발자와 Agent를 위한 repository 개요를 제공한다.
 - `docs/README.md`가 문서 허브 역할을 한다.
 - `docs/product/`, `docs/specs/`, `docs/development/`, `docs/agents/`, `docs/planning/`, `docs/changelog/`가 존재한다.
 - PRD와 스펙 변경 이력이 추적 가능하다.

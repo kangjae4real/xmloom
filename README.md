@@ -1,70 +1,70 @@
 # XMLoom
 
-XMLoom은 사용자가 자연어로 대충 적은 입력을 예측 가능한 XML 형식으로 정리해주는 웹서비스입니다.
+대충 적은 텍스트를 읽기 쉬운 XML 태그로 바꿔주는 간단한 웹서비스입니다.
 
-초기 MVP는 OpenAI API나 LLM 없이 규칙 기반 변환으로 시작합니다. 사용자는 하나 이상의 Text field에 내용을 입력하고, 필요하면 child field를 추가해 nested XML을 만든 뒤 결과를 미리보기, 복사, 초기화할 수 있습니다.
+XML 문법을 직접 맞추거나 닫는 태그를 손으로 챙기지 않아도, 필드 이름과 내용을 입력하면 XMLoom이 바로 XML 미리보기를 만들어 줍니다.
 
-## Current Status
+## What You Can Do
 
-- Next.js 기반 규칙 XML 변환 workbench입니다.
-- root wrapper 없는 sibling XML tag와 nested child tag 출력을 지원합니다.
-- EN/KO language toggle과 clipboard toast feedback을 제공합니다.
-- AI 보조 변환은 v1 이후 확장 후보이며, 현재 기본 동작으로 가정하지 않습니다.
+- 여러 개의 텍스트 필드를 XML 태그 목록으로 변환합니다.
+- 필드 안에 하위 필드를 추가해 nested XML을 만들 수 있습니다.
+- 입력을 바꾸면 XML 미리보기가 즉시 갱신됩니다.
+- 결과 XML을 한 번에 복사할 수 있습니다.
+- 영어와 한국어 UI를 전환할 수 있습니다.
+- 입력 내용은 브라우저 안에서만 처리됩니다.
 
-## Tech Stack
+## How To Use
 
-- Next.js `16.2.4`
-- React `19.2.4`
-- TypeScript `5`
-- Tailwind CSS `4`
-- shadcn/radix UI, lucide-react
-- next-intl, sonner
-- React Hook Form, Zod
-- TanStack Query
-- Zustand
-- ESLint `9`, Prettier `3`
+1. `Field name`에 XML 태그 이름을 적습니다.
+2. `Content`에 태그 안에 들어갈 텍스트를 적습니다.
+3. 태그 안에 또 다른 태그가 필요하면 `Add child`를 누릅니다.
+4. 오른쪽 XML preview에서 결과를 확인합니다.
+5. `Copy XML`을 눌러 결과를 복사합니다.
 
-## Getting Started
+예시 입력:
+
+```text
+Field name: context
+Content:
+asdad
+asd
+asd
+```
+
+결과:
+
+```xml
+<context>
+  asdad
+  asd
+  asd
+</context>
+```
+
+Nested XML 예시:
+
+```xml
+<document>
+  대충 적은 문서 설명
+  <section>첫 번째 섹션</section>
+</document>
+```
+
+## Tag Name Rules
+
+안전한 태그 이름은 영문자 또는 `_`로 시작하고, 이후에는 영문자, 숫자, `_`, `-`를 사용할 수 있습니다.
+
+안전하지 않은 이름을 입력해도 변환은 멈추지 않습니다. XMLoom은 `field-1`, `field-2`처럼 안전한 fallback tag name을 자동으로 사용합니다.
+
+## Run Locally
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-개발 서버는 기본적으로 Next.js가 안내하는 로컬 주소에서 실행됩니다.
+Next.js가 안내하는 로컬 주소를 브라우저에서 열면 XMLoom을 사용할 수 있습니다.
 
-## Useful Commands
+## For Maintainers And Agents
 
-```bash
-pnpm dev
-pnpm lint
-pnpm exec prettier . --check
-pnpm exec prettier . --write
-pnpm build
-```
-
-커밋 전에는 최소한 `pnpm lint`와 `pnpm exec prettier . --check`를 통과시킵니다. 화면이나 빌드 동작에 영향을 주는 변경은 `pnpm build`까지 확인합니다.
-
-## Documentation
-
-- [Docs Hub](./docs/README.md): Codex, Claude, 사람 개발자가 함께 보는 문서 시작점
-- [Product PRD](./docs/product/prd.md): 제품 요구사항, MVP 범위, acceptance criteria
-- [Product Overview](./docs/product/overview.md): 제품 목표와 규칙 기반 변환 요약
-- [XML Conversion Spec](./docs/specs/xml-conversion.md): XML 변환 입력/출력, tag fallback, escaping 규칙
-- [Screen Spec](./docs/specs/screen.md): mobile/tablet/desktop 화면 기준, spacing, 상태별 UI
-- [Engineering](./docs/development/engineering.md): 코드 관리, 커밋 규칙, 검증 명령어, 구현 원칙
-- [Agent Guide](./docs/agents/guide.md): Agent가 다시 들어왔을 때 읽을 순서와 작업 방식
-- [Agent Skills](./docs/agents/skills.md): Codex/Claude 공용 local skill과 shadcn/ui 사용 절차
-- [PRD Changelog](./docs/changelog/prd.md), [Spec Changelog](./docs/changelog/specs.md): PRD와 스펙 변경 내역
-- [Roadmap](./docs/planning/roadmap.md): v0 문서화부터 v3 AI 보조 변환까지의 단계
-
-## Development Principles
-
-- 사용자가 첫 화면에서 바로 변환 작업을 시작할 수 있는 앱 화면을 우선합니다.
-- MVP 변환은 deterministic 해야 합니다. 같은 입력은 같은 XML을 만들어야 합니다.
-- XML 결과는 escape, validation, empty state를 명확히 처리합니다.
-- UI는 shadcn/radix와 Tailwind CSS 4 기반의 기존 설정을 우선 사용합니다.
-- shadcn/ui 작업이 많다면 Codex 또는 Claude에 shadcn/ui skill을 로컬로 설치해두면 컴포넌트 추가, 조합, 업데이트 규칙을 일관되게 유지하는 데 유용합니다.
-- 로컬 agent skill 폴더인 `.agents/`, `.claude/`는 개인 개발 환경 설정이므로 git에서 추적하지 않습니다.
-- 이 프로젝트의 Next.js는 기존 지식과 다를 수 있으므로, Next.js 관련 코드를 작성하기 전 `node_modules/next/dist/docs/`의 관련 문서를 확인합니다.
-- PRD나 스펙을 바꾸는 작업은 `docs/changelog/`의 변경 이력도 함께 갱신합니다.
+개발 규칙, 문서 구조, 기술 스택, Agent 재진입 정보는 [Repository Brief](./docs/agents/repository-brief.md)에서 시작하세요.

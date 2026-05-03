@@ -9,14 +9,16 @@
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/README.md`
-4. 현재 작업과 관련된 `docs/**/*.md`
-5. shadcn/ui 작업이면 `docs/agents/skills.md`를 읽고, 로컬 shadcn/ui skill이 설치되어 있으면 해당 skill 문서
-6. 관련 source file과 config file
-7. Next.js 관련 변경이면 `node_modules/next/dist/docs/`의 관련 문서
+4. `docs/agents/repository-brief.md`
+5. 현재 작업과 관련된 `docs/**/*.md`
+6. shadcn/ui 작업이면 `docs/agents/skills.md`를 읽고, 로컬 shadcn/ui skill이 설치되어 있으면 해당 skill 문서
+7. 관련 source file과 config file
+8. Next.js 관련 변경이면 `node_modules/next/dist/docs/`의 관련 문서
 
 ## Where To Look
 
 - 문서 허브: `docs/README.md`
+- repository 개발/Agent 요약: `docs/agents/repository-brief.md`
 - 제품 목표와 MVP 범위: `docs/product/prd.md`, `docs/product/overview.md`
 - XML 변환 규칙: `docs/specs/xml-conversion.md`
 - 화면 크기, gap, 상태별 UI: `docs/specs/screen.md`
