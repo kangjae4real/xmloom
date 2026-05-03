@@ -8,6 +8,7 @@
 - App code는 `src/` 아래에 둔다.
 - import alias는 `@/*`가 `src/*`를 가리킨다.
 - shadcn generated component는 `src/components/shadcn` 아래에 둔다.
+- shadcn/ui 작업 전에는 [Agent Skills](../agents/skills.md)와 `.agents/skills/shadcn/SKILL.md`를 확인한다.
 
 ## Commands
 
@@ -50,6 +51,7 @@ fix: escape xml text content
 - Tailwind class 정렬은 `prettier-plugin-tailwindcss`에 맡긴다.
 - class 병합은 기존 `cn` helper를 사용한다.
 - UI는 shadcn/radix와 lucide-react를 우선 사용한다.
+- shadcn component 추가, 수정, 업데이트, 디버깅은 project-local shadcn skill을 따른다.
 - 복잡한 상태가 아니면 React local state로 시작한다.
 - 여러 component가 공유하는 client state가 필요해질 때 Zustand를 사용한다.
 - remote/server state가 필요할 때 TanStack Query를 사용한다.

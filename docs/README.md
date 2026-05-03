@@ -9,13 +9,14 @@
 3. [Screen Spec](./specs/screen.md)
 4. [Engineering Guide](./development/engineering.md)
 5. [Agent Guide](./agents/guide.md)
+6. [Agent Skills](./agents/skills.md)
 
 ## Directory Map
 
 - `product/`: 제품 목표, PRD, 사용자 문제, MVP 범위
 - `specs/`: 화면, XML 변환, 입력/출력 동작 같은 구현 스펙
 - `development/`: 코드 관리, 검증 명령어, 구현 규칙
-- `agents/`: AI Agent가 작업을 이어가기 위한 재진입 문서
+- `agents/`: AI Agent가 작업을 이어가기 위한 재진입 문서와 local skill 사용법
 - `planning/`: 로드맵과 단계별 개발 우선순위
 - `changelog/`: PRD와 스펙 변경 이력
 
@@ -35,5 +36,6 @@ PRD나 스펙을 바꿀 때는 같은 커밋에서 변경 이력도 갱신한다
 - XML 변환 스펙 변경: `docs/specs/xml-conversion.md`와 `docs/changelog/specs.md`
 - 화면 스펙 변경: `docs/specs/screen.md`와 `docs/changelog/specs.md`
 - 개발 규칙 변경: `docs/development/engineering.md`
+- Agent skill 사용 규칙 변경: `docs/agents/skills.md`
 
 작은 문구 수정은 changelog가 필요 없지만, 제품 동작, 화면 구조, 변환 규칙, 검증 기준이 바뀌면 changelog를 남긴다.

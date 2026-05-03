@@ -3,3 +3,5 @@
 Read `AGENTS.md` first, then use `docs/README.md` as the documentation hub.
 
 This project keeps product requirements, implementation specs, and change history under `docs/` so Claude, Codex, and human contributors can follow the same source of truth.
+
+For shadcn/ui work, use `.claude/skills/shadcn`. It is a symlink to `.agents/skills/shadcn`, which is the canonical project-local skill.

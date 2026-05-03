@@ -16,14 +16,16 @@ Before changing this project, read:
 4. `docs/specs/xml-conversion.md` for XML conversion assumptions
 5. `docs/specs/screen.md` for responsive UI and spacing rules
 6. `docs/development/engineering.md` for code management, commits, lint, format, and implementation conventions
-7. `docs/agents/guide.md` when you need the full re-entry checklist
-8. `docs/planning/roadmap.md` for implementation priority
+7. `docs/agents/skills.md` for project-local skills, including shadcn/ui
+8. `docs/agents/guide.md` when you need the full re-entry checklist
+9. `docs/planning/roadmap.md` for implementation priority
 
 Project defaults:
 
 - MVP conversion is rules-based, not OpenAI/LLM-backed.
 - Package manager is `pnpm`.
 - Commit messages follow Conventional Commits.
+- shadcn/ui work must use the local skill at `.agents/skills/shadcn/SKILL.md`; `.claude/skills/shadcn` is a symlink to the same skill.
 - PRD changes must update `docs/changelog/prd.md`.
 - Spec changes must update `docs/changelog/specs.md`.
 - Do not revert user changes unless explicitly requested.

@@ -52,6 +52,7 @@ pnpm build
 - [Screen Spec](./docs/specs/screen.md): mobile/tablet/desktop 화면 기준, spacing, 상태별 UI
 - [Engineering](./docs/development/engineering.md): 코드 관리, 커밋 규칙, 검증 명령어, 구현 원칙
 - [Agent Guide](./docs/agents/guide.md): Agent가 다시 들어왔을 때 읽을 순서와 작업 방식
+- [Agent Skills](./docs/agents/skills.md): Codex/Claude 공용 local skill과 shadcn/ui 사용 절차
 - [PRD Changelog](./docs/changelog/prd.md), [Spec Changelog](./docs/changelog/specs.md): PRD와 스펙 변경 내역
 - [Roadmap](./docs/planning/roadmap.md): v0 문서화부터 v3 AI 보조 변환까지의 단계
 
@@ -61,5 +62,6 @@ pnpm build
 - MVP 변환은 deterministic 해야 합니다. 같은 입력은 같은 XML을 만들어야 합니다.
 - XML 결과는 escape, validation, empty state를 명확히 처리합니다.
 - UI는 shadcn/radix와 Tailwind CSS 4 기반의 기존 설정을 우선 사용합니다.
+- shadcn component를 다룰 때는 `.agents/skills/shadcn/SKILL.md` 또는 `.claude/skills/shadcn` skill을 먼저 사용합니다.
 - 이 프로젝트의 Next.js는 기존 지식과 다를 수 있으므로, Next.js 관련 코드를 작성하기 전 `node_modules/next/dist/docs/`의 관련 문서를 확인합니다.
 - PRD나 스펙을 바꾸는 작업은 `docs/changelog/`의 변경 이력도 함께 갱신합니다.

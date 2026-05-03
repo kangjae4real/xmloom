@@ -65,6 +65,7 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 ## Component Guidance
 
 - shadcn/radix component를 우선 사용한다.
+- shadcn component를 새로 추가하거나 수정할 때는 [Agent Skills](../agents/skills.md)의 shadcn/ui workflow를 따른다.
 - button에는 가능한 lucide-react icon을 함께 사용한다.
 - field 추가/삭제, 복사, 초기화 같은 도구 액션은 icon button 또는 icon+text button을 사용한다.
 - 숫자, 토글, option 선택이 생기면 input type에 맞는 control을 사용한다.
