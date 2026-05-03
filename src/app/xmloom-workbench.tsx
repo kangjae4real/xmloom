@@ -373,7 +373,7 @@ export default function XmloomWorkbench() {
 
             <CardContent className="min-h-0 flex-1 overflow-hidden">
               {result.empty ? (
-                <ScrollArea className="h-full rounded-lg border">
+                <ScrollArea className="h-full rounded-lg border" full>
                   <div className="flex min-h-full items-center justify-center p-4">
                     <Empty>
                       <EmptyHeader>
