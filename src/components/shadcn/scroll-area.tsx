@@ -5,12 +5,19 @@ import { ScrollArea as ScrollAreaPrimitive } from 'radix-ui';
 
 import { cn } from '@/utils/shadcn';
 
-function ScrollArea({ className, children, ...props }: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+export type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+  full?: boolean;
+};
+
+function ScrollArea({ className, children, full = false, ...props }: ScrollAreaProps) {
   return (
     <ScrollAreaPrimitive.Root data-slot="scroll-area" className={cn('relative', className)} {...props}>
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+        className={cn(
+          'focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1',
+          full && '[&>*:first-child]:h-full',
+        )}
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
