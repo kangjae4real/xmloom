@@ -17,18 +17,22 @@ XMLoom은 대충 작성된 자연어 입력을 XML 형식으로 빠르게 정리
 ## MVP Flow
 
 1. 사용자가 하나 이상의 입력 블록을 만든다.
-2. 각 입력 블록에 field name과 text content를 작성한다.
-3. XMLoom이 입력 블록을 XML로 변환한다.
-4. 사용자는 결과를 preview에서 확인한다.
-5. 사용자는 XML을 복사하거나 입력을 초기화한다.
+2. 필요한 경우 입력 블록 아래에 child 입력 블록을 만든다.
+3. 각 입력 블록에 field name과 text content를 작성한다.
+4. XMLoom이 입력 블록을 XML로 변환한다.
+5. 사용자는 결과를 preview에서 확인한다.
+6. 사용자는 XML을 복사하거나 입력을 초기화한다.
+7. 사용자는 EN/KO toggle로 UI 언어를 전환할 수 있다.
 
 ## Rules-Based Conversion
 
 - 변환 결과는 root wrapper 없이 복수 XML tag 목록으로 출력한다.
-- 각 입력 블록은 같은 depth의 sibling element가 된다.
+- top-level 입력 블록은 같은 depth의 sibling element가 된다.
+- child 입력 블록은 parent tag 안의 nested element가 된다.
+- parent content와 child element가 모두 있으면 parent content가 먼저 출력된다.
 - field name이 안전한 XML tag name이면 element name으로 사용한다.
 - field name이 비어 있거나 안전하지 않으면 `field-1`, `field-2`처럼 순서 기반 이름을 사용한다.
-- 원본 field name이 tag name으로 쓰이지 못한 경우, 구현 단계에서 필요하면 `label` attribute로 보존할 수 있다.
+- 원본 field name이 tag name으로 쓰이지 못해도 MVP에서는 attribute로 보존하지 않는다.
 - text content는 XML text node로 넣고, XML을 깨뜨릴 수 있는 문자는 안전하게 escape한다.
 - 빈 입력 블록은 변환에서 제외하되, 모든 입력이 비어 있으면 empty state를 보여준다.
 
@@ -40,9 +44,12 @@ XMLoom은 대충 작성된 자연어 입력을 XML 형식으로 빠르게 정리
 
 - 사용자가 XML 지식 없이도 1분 안에 XML 결과를 만들 수 있다.
 - 복수 입력 필드가 순서대로 XML에 반영된다.
+- child 입력 필드가 parent tag 안에 중첩되어 반영된다.
 - 같은 입력과 같은 field name은 항상 같은 XML을 만든다.
 - 결과 XML을 한 번의 명확한 액션으로 복사할 수 있다.
+- 복사 성공/실패는 toast로 확인할 수 있다.
 - invalid/empty state가 사용자를 막지 않고 다음 행동을 안내한다.
+- 사용자는 영어와 한국어 UI를 전환할 수 있다.
 
 ## Non-Goals
 

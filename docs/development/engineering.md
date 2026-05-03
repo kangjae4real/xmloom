@@ -9,6 +9,7 @@
 - import alias는 `@/*`가 `src/*`를 가리킨다.
 - shadcn generated component는 `src/components/shadcn` 아래에 둔다.
 - shadcn/ui 작업 전에는 [Agent Skills](../agents/skills.md)와 `.agents/skills/shadcn/SKILL.md`를 확인한다.
+- locale message는 repo root의 `locales/en.json`, `locales/ko.json`을 기준으로 관리한다.
 
 ## Commands
 
@@ -52,10 +53,20 @@ fix: escape xml text content
 - class 병합은 기존 `cn` helper를 사용한다.
 - UI는 shadcn/radix와 lucide-react를 우선 사용한다.
 - shadcn component 추가, 수정, 업데이트, 디버깅은 project-local shadcn skill을 따른다.
+- option 선택 UI는 가능한 shadcn/ui `ToggleGroup`을 사용한다.
+- copy success/failure 같은 일시 feedback은 shadcn/ui `sonner`를 사용한다.
 - 복잡한 상태가 아니면 React local state로 시작한다.
 - 여러 component가 공유하는 client state가 필요해질 때 Zustand를 사용한다.
 - remote/server state가 필요할 때 TanStack Query를 사용한다.
 - form validation은 React Hook Form과 Zod를 우선한다.
+
+## Internationalization
+
+- v1은 route 기반 locale segment 없이 client-side language toggle을 사용한다.
+- translation source는 `locales/en.json`, `locales/ko.json`이다.
+- UI component는 literal copy를 직접 넣기보다 `src/i18n/i18n-provider.tsx`의 `useLocaleController().t()`를 사용한다.
+- locale 선택은 `xmloom-locale` local storage key로 보존한다.
+- route별 locale, Accept-Language negotiation, server dictionary loading은 필요가 생기면 별도 스펙으로 확장한다.
 
 ## Next.js Rules
 
@@ -74,6 +85,8 @@ fix: escape xml text content
 - 같은 입력은 같은 XML을 만들어야 한다.
 - XML escape 처리를 빠뜨리지 않는다.
 - tag name fallback은 순서 기반으로 안정적으로 만든다.
+- nested field의 fallback 번호는 sibling list 기준으로 계산한다.
+- parent content와 child elements가 함께 있으면 content를 먼저 출력한다.
 - 변환 규칙을 변경하면 `docs/specs/xml-conversion.md`, `docs/product/prd.md`, `docs/changelog/specs.md`도 함께 확인한다.
 
 ## Review Checklist

@@ -156,3 +156,67 @@ Related Docs:
 
 - `docs/specs/screen.md`
 - `docs/product/prd.md`
+
+## 2026-05-03 - SPEC-XML-2026-05-03-004
+
+Status: V1 improvement
+
+Area: XML conversion
+
+Summary: XML 변환 입력 모델에 child field tree를 추가했다.
+
+Changed:
+
+- field input은 optional ordered `children` list를 가질 수 있다.
+- content가 비어 있어도 included child가 있으면 parent element를 출력한다.
+- child element는 parent element 안에 two-space indentation으로 출력한다.
+- parent content와 child element가 함께 있으면 parent content가 먼저 출력된다.
+- fallback tag 번호는 각 sibling list 기준으로 계산한다.
+
+Reason:
+
+- 사용자가 XML tag 안의 하위 tag 구조를 직접 구성할 수 있어야 한다.
+- nested XML 출력도 기존 deterministic 변환 규칙과 같은 방식으로 예측 가능해야 한다.
+
+Impact:
+
+- `buildXmlDocument`는 recursive field list를 받아야 한다.
+- formatter는 child element가 있는 경우 single-line element 대신 block format을 사용해야 한다.
+
+Related Docs:
+
+- `docs/specs/xml-conversion.md`
+- `docs/product/prd.md`
+- `docs/development/engineering.md`
+
+## 2026-05-03 - SPEC-SCREEN-2026-05-03-003
+
+Status: V1 improvement
+
+Area: Responsive screen
+
+Summary: nested field editing, language toggle, and sonner feedback 화면 규칙을 추가했다.
+
+Changed:
+
+- parent field 아래 child field를 추가, 편집, 삭제하는 UI state를 정의했다.
+- child field는 parent 아래에서 border-left와 padding으로 계층을 보여준다.
+- header 우측에 EN/KO language toggle을 둔다.
+- copy success/failure는 shadcn/ui `sonner` toast로 표시한다.
+
+Reason:
+
+- nested XML 기능은 입력 화면에서도 계층이 명확해야 한다.
+- 언어 전환은 별도 route 변경 없이 즉시 확인 가능한 control이어야 한다.
+- copy feedback은 preview와 입력 흐름을 방해하지 않는 일시적 feedback이어야 한다.
+
+Impact:
+
+- UI 구현은 shadcn/ui `ToggleGroup`과 `sonner`를 포함해야 한다.
+- 문구 추가/변경 시 locale JSON을 함께 갱신해야 한다.
+
+Related Docs:
+
+- `docs/specs/screen.md`
+- `docs/product/prd.md`
+- `docs/development/engineering.md`

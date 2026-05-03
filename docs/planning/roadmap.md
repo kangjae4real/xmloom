@@ -23,8 +23,10 @@
 목표:
 
 - 사용자가 복수 입력 field를 만들고 삭제할 수 있다.
+- 사용자가 parent field 아래 child field를 만들어 nested XML을 구성할 수 있다.
 - field name과 text content를 XML로 변환한다.
 - XML preview, copy, reset을 제공한다.
+- EN/KO language toggle을 제공한다.
 - mobile/tablet/desktop 레이아웃을 구현한다.
 
 완료 기준:
@@ -32,6 +34,8 @@
 - 같은 입력은 같은 XML을 만든다.
 - XML text content가 안전하게 escape된다.
 - field name fallback이 안정적으로 동작한다.
+- parent content와 child tags가 함께 있을 때 읽기 쉬운 block format으로 출력된다.
+- copy success/failure는 toast로 표시된다.
 - 빈 입력과 invalid field name 상태가 UI에서 처리된다.
 - 구현이 `docs/product/prd.md`, `docs/specs/xml-conversion.md`, `docs/specs/screen.md`와 일치한다.
 - `pnpm lint`, `pnpm exec prettier . --check`, 필요 시 `pnpm build`가 통과한다.

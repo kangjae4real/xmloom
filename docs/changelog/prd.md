@@ -43,7 +43,6 @@ Related Docs:
 - `docs/product/prd.md`
 - `docs/product/overview.md`
 - `docs/specs/xml-conversion.md`
-- `docs/planning/roadmap.md`
 
 ## 2026-05-03 - PRD-2026-05-03-002
 
@@ -98,3 +97,38 @@ Related Docs:
 - `docs/product/prd.md`
 - `docs/product/overview.md`
 - `docs/specs/xml-conversion.md`
+
+## 2026-05-03 - PRD-2026-05-03-004
+
+Status: V1 improvement
+
+Summary: nested XML, bilingual UI, and toast-based copy feedback를 v1 범위에 추가했다.
+
+Changed:
+
+- field는 ordered child field 목록을 가질 수 있다.
+- child field는 parent tag 안에 nested XML element로 출력한다.
+- parent content와 child element가 모두 있으면 parent content를 먼저 출력한다.
+- UI는 영어와 한국어를 전환할 수 있다.
+- copy success/failure feedback은 inline message 대신 shadcn/ui `sonner` toast를 사용한다.
+
+Reason:
+
+- XML tag 안에 다시 tag가 들어가는 구조가 실제 XML 초안 작성에 필요하다.
+- 초기 사용자와 agent 모두가 한국어/영어 UI를 오가며 확인할 수 있어야 한다.
+- copy feedback은 입력 panel 하단보다 action 근처에서 짧게 사라지는 toast가 더 적합하다.
+
+Impact:
+
+- 변환 로직은 recursive field tree를 처리해야 한다.
+- 화면은 child field 추가/삭제/편집 control을 제공해야 한다.
+- locale message 변경 시 `locales/en.json`, `locales/ko.json`을 함께 갱신해야 한다.
+
+Related Docs:
+
+- `docs/product/prd.md`
+- `docs/product/overview.md`
+- `docs/specs/xml-conversion.md`
+- `docs/specs/screen.md`
+- `docs/development/engineering.md`
+- `docs/planning/roadmap.md`

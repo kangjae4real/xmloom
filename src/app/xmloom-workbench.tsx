@@ -1,15 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import {
-  AlertCircleIcon,
-  CheckIcon,
-  ClipboardIcon,
-  FileCodeIcon,
-  PlusIcon,
-  RotateCcwIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { ClipboardIcon, FileCodeIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react';
 import { Badge } from '@/components/shadcn/badge';
 import { Button } from '@/components/shadcn/button';
 import {
@@ -33,76 +26,134 @@ import {
 } from '@/components/shadcn/field';
 import { Input } from '@/components/shadcn/input';
 import { Textarea } from '@/components/shadcn/textarea';
+import { ToggleGroup, ToggleGroupItem } from '@/components/shadcn/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip';
-import { buildXmlDocument, getFallbackTagName, isValidXmlTagName, type XmlFieldInput } from '@/utils/xml-conversion';
+import { useLocaleController, type Locale } from '@/i18n/i18n-provider';
+import { cn } from '@/utils/shadcn';
+import { buildXmlDocument, getFallbackTagName, isValidXmlTagName } from '@/utils/xml-conversion';
 
-type WorkbenchField = XmlFieldInput & {
+type WorkbenchField = {
   id: string;
+  name?: string;
+  content?: string;
+  children: WorkbenchField[];
 };
 
-type CopyState = 'idle' | 'success' | 'error';
+type EditableFieldKey = 'name' | 'content';
 
 const INITIAL_FIELDS: WorkbenchField[] = [
   {
     id: 'field-1',
     name: '',
     content: '',
+    children: [],
   },
 ];
 
-export default function XmloomWorkbench() {
-  const [fields, setFields] = useState<WorkbenchField[]>(INITIAL_FIELDS);
-  const [nextFieldId, setNextFieldId] = useState(2);
-  const [copyState, setCopyState] = useState<CopyState>('idle');
+function createField(id: string): WorkbenchField {
+  return {
+    id,
+    name: '',
+    content: '',
+    children: [],
+  };
+}
 
-  const result = useMemo(() => buildXmlDocument(fields), [fields]);
-  const fallbackCount = result.includedFields.filter((field) => field.usedFallback).length;
+function countAllFields(fields: WorkbenchField[]): number {
+  return fields.reduce((count, field) => count + 1 + countAllFields(field.children), 0);
+}
 
-  useEffect(() => {
-    if (copyState === 'idle') {
-      return;
+function updateFieldInTree(
+  fields: WorkbenchField[],
+  id: string,
+  key: EditableFieldKey,
+  value: string,
+): WorkbenchField[] {
+  return fields.map((field) => {
+    if (field.id === id) {
+      return {
+        ...field,
+        [key]: value,
+      };
     }
 
-    const timeout = window.setTimeout(() => setCopyState('idle'), 1800);
+    return {
+      ...field,
+      children: updateFieldInTree(field.children, id, key, value),
+    };
+  });
+}
 
-    return () => window.clearTimeout(timeout);
-  }, [copyState]);
+function addChildToField(fields: WorkbenchField[], parentId: string, child: WorkbenchField): WorkbenchField[] {
+  return fields.map((field) => {
+    if (field.id === parentId) {
+      return {
+        ...field,
+        children: [...field.children, child],
+      };
+    }
 
-  function updateField(id: string, key: keyof XmlFieldInput, value: string) {
-    setFields((currentFields) => currentFields.map((field) => (field.id === id ? { ...field, [key]: value } : field)));
-    setCopyState('idle');
+    return {
+      ...field,
+      children: addChildToField(field.children, parentId, child),
+    };
+  });
+}
+
+function removeFieldFromTree(fields: WorkbenchField[], id: string): WorkbenchField[] {
+  return fields
+    .filter((field) => field.id !== id)
+    .map((field) => ({
+      ...field,
+      children: removeFieldFromTree(field.children, id),
+    }));
+}
+
+export default function XmloomWorkbench() {
+  const { locale, setLocale, t } = useLocaleController();
+  const [fields, setFields] = useState<WorkbenchField[]>(INITIAL_FIELDS);
+  const [nextFieldId, setNextFieldId] = useState(2);
+
+  const result = useMemo(() => buildXmlDocument(fields), [fields]);
+  const totalFields = countAllFields(fields);
+  const fallbackCount = result.includedFields.filter((field) => field.usedFallback).length;
+
+  function getNewField() {
+    const field = createField(`field-${nextFieldId}`);
+    setNextFieldId((currentId) => currentId + 1);
+
+    return field;
+  }
+
+  function updateField(id: string, key: EditableFieldKey, value: string) {
+    setFields((currentFields) => updateFieldInTree(currentFields, id, key, value));
   }
 
   function addField() {
-    const fieldId = `field-${nextFieldId}`;
+    const field = getNewField();
 
-    setFields((currentFields) => [
-      ...currentFields,
-      {
-        id: fieldId,
-        name: '',
-        content: '',
-      },
-    ]);
-    setNextFieldId((currentId) => currentId + 1);
-    setCopyState('idle');
+    setFields((currentFields) => [...currentFields, field]);
+  }
+
+  function addChild(parentId: string) {
+    const field = getNewField();
+
+    setFields((currentFields) => addChildToField(currentFields, parentId, field));
   }
 
   function removeField(id: string) {
-    setFields((currentFields) => {
-      if (currentFields.length <= 1) {
-        return currentFields;
-      }
-
-      return currentFields.filter((field) => field.id !== id);
-    });
-    setCopyState('idle');
+    setFields((currentFields) => removeFieldFromTree(currentFields, id));
   }
 
   function resetFields() {
     setFields(INITIAL_FIELDS);
     setNextFieldId(2);
-    setCopyState('idle');
+  }
+
+  function changeLocale(value: string) {
+    if (value === 'en' || value === 'ko') {
+      setLocale(value as Locale);
+    }
   }
 
   async function copyXml() {
@@ -112,10 +163,93 @@ export default function XmloomWorkbench() {
 
     try {
       await navigator.clipboard.writeText(result.xml);
-      setCopyState('success');
+      toast.success(t('copySuccess'));
     } catch {
-      setCopyState('error');
+      toast.error(t('copyError'));
     }
+  }
+
+  function renderField(field: WorkbenchField, index: number, siblingCount: number, depth: number, path: number[]) {
+    const trimmedName = field.name?.trim() ?? '';
+    const hasInvalidName = Boolean(trimmedName && !isValidXmlTagName(trimmedName));
+    const fallbackTagName = getFallbackTagName(index);
+    const childFields = field.children;
+    const pathLabel = path.map((position) => position + 1).join('.');
+    const canRemove = depth > 0 || siblingCount > 1;
+
+    return (
+      <Field key={field.id} data-invalid={hasInvalidName || undefined}>
+        <FieldContent
+          className={cn('bg-background gap-3 rounded-lg border p-3', depth > 0 && 'border-l-primary/40 border-l-2')}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-1">
+              <FieldTitle>{t('fieldTitle', { index: pathLabel })}</FieldTitle>
+              <FieldDescription>
+                {t('tagFallback')}: &lt;{fallbackTagName}&gt;
+              </FieldDescription>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <Button type="button" variant="outline" size="sm" onClick={() => addChild(field.id)}>
+                <PlusIcon data-icon="inline-start" />
+                {t('addChild')}
+              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t('removeFieldAria', { index: pathLabel })}
+                    disabled={!canRemove}
+                    onClick={() => removeField(field.id)}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('removeField')}</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          <Field data-invalid={hasInvalidName || undefined}>
+            <FieldLabel htmlFor={`${field.id}-name`}>{t('fieldNameLabel')}</FieldLabel>
+            <Input
+              id={`${field.id}-name`}
+              value={field.name}
+              aria-invalid={hasInvalidName || undefined}
+              placeholder={t('fieldNamePlaceholder')}
+              onChange={(event) => updateField(field.id, 'name', event.target.value)}
+            />
+            {hasInvalidName ? (
+              <FieldError>{t('invalidFieldName', { tagName: `<${fallbackTagName}>` })}</FieldError>
+            ) : (
+              <FieldDescription>{t('fieldNameHelp')}</FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor={`${field.id}-content`}>{t('contentLabel')}</FieldLabel>
+            <Textarea
+              id={`${field.id}-content`}
+              value={field.content}
+              placeholder={t('contentPlaceholder')}
+              className="min-h-24"
+              onChange={(event) => updateField(field.id, 'content', event.target.value)}
+            />
+          </Field>
+
+          {childFields.length > 0 ? (
+            <FieldGroup className="gap-3 border-l pl-3 md:pl-4">
+              {childFields.map((childField, childIndex) =>
+                renderField(childField, childIndex, childFields.length, depth + 1, [...path, childIndex]),
+              )}
+            </FieldGroup>
+          ) : null}
+        </FieldContent>
+      </Field>
+    );
   }
 
   return (
@@ -124,120 +258,69 @@ export default function XmloomWorkbench() {
         <header className="flex min-h-14 flex-col justify-between gap-4 md:min-h-16 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-heading text-2xl font-medium tracking-normal md:text-3xl">XMLoom</h1>
-              <Badge variant="secondary">Rules-based</Badge>
+              <h1 className="font-heading text-2xl font-medium tracking-normal md:text-3xl">{t('title')}</h1>
+              <Badge variant="secondary">{t('modeBadge')}</Badge>
             </div>
-            <p className="text-muted-foreground text-sm">Draft rough text into stable XML.</p>
+            <p className="text-muted-foreground text-sm">{t('subtitle')}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">Sibling tags</Badge>
-            <Badge variant={result.empty ? 'secondary' : 'default'}>{result.includedFields.length} fields</Badge>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              value={locale}
+              aria-label={t('languageToggle')}
+              onValueChange={changeLocale}
+            >
+              <ToggleGroupItem value="en">EN</ToggleGroupItem>
+              <ToggleGroupItem value="ko">KO</ToggleGroupItem>
+            </ToggleGroup>
+            <Badge variant="outline">{t('shapeBadge')}</Badge>
+            <Badge variant={result.empty ? 'secondary' : 'default'}>
+              {t('includedCount', { count: result.includedFields.length })}
+            </Badge>
           </div>
         </header>
 
         <div className="grid min-h-[calc(100vh-7rem)] gap-4 md:grid-cols-[minmax(320px,5fr)_minmax(0,7fr)] md:gap-5 lg:gap-6">
           <Card className="min-w-0" size="sm">
             <CardHeader>
-              <CardTitle>Inputs</CardTitle>
-              <CardDescription>{fields.length} text fields</CardDescription>
+              <CardTitle>{t('inputsTitle')}</CardTitle>
+              <CardDescription>{t('fieldCount', { count: totalFields })}</CardDescription>
               <CardAction>
                 <Button type="button" size="sm" onClick={addField}>
                   <PlusIcon data-icon="inline-start" />
-                  Add field
+                  {t('addField')}
                 </Button>
               </CardAction>
             </CardHeader>
 
             <CardContent>
               <FieldGroup className="gap-4">
-                {fields.map((field, index) => {
-                  const trimmedName = field.name?.trim() ?? '';
-                  const hasInvalidName = Boolean(trimmedName && !isValidXmlTagName(trimmedName));
-                  const fallbackTagName = getFallbackTagName(index);
-
-                  return (
-                    <Field key={field.id} data-invalid={hasInvalidName || undefined}>
-                      <FieldContent className="bg-background gap-3 rounded-lg border p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex min-w-0 flex-col gap-1">
-                            <FieldTitle>Field {index + 1}</FieldTitle>
-                            <FieldDescription>Tag fallback: &lt;{fallbackTagName}&gt;</FieldDescription>
-                          </div>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={`Remove field ${index + 1}`}
-                                disabled={fields.length <= 1}
-                                onClick={() => removeField(field.id)}
-                              >
-                                <Trash2Icon />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Remove field</TooltipContent>
-                          </Tooltip>
-                        </div>
-
-                        <Field>
-                          <FieldLabel htmlFor={`${field.id}-name`}>Field name</FieldLabel>
-                          <Input
-                            id={`${field.id}-name`}
-                            value={field.name}
-                            aria-invalid={hasInvalidName || undefined}
-                            placeholder="title"
-                            onChange={(event) => updateField(field.id, 'name', event.target.value)}
-                          />
-                          {hasInvalidName ? (
-                            <FieldError>
-                              Will use &lt;{fallbackTagName}&gt; because this name is not XML-safe.
-                            </FieldError>
-                          ) : (
-                            <FieldDescription>Letters, numbers, underscore, and hyphen.</FieldDescription>
-                          )}
-                        </Field>
-
-                        <Field>
-                          <FieldLabel htmlFor={`${field.id}-content`}>Content</FieldLabel>
-                          <Textarea
-                            id={`${field.id}-content`}
-                            value={field.content}
-                            placeholder="Write rough text here."
-                            className="min-h-24"
-                            onChange={(event) => updateField(field.id, 'content', event.target.value)}
-                          />
-                        </Field>
-                      </FieldContent>
-                    </Field>
-                  );
-                })}
+                {fields.map((field, index) => renderField(field, index, fields.length, 0, [index]))}
               </FieldGroup>
             </CardContent>
 
             <CardFooter className="justify-between gap-2">
               <Button type="button" variant="outline" onClick={resetFields}>
                 <RotateCcwIcon data-icon="inline-start" />
-                Reset
+                {t('reset')}
               </Button>
-              {fallbackCount > 0 ? <Badge variant="destructive">{fallbackCount} fallback tags</Badge> : null}
+              {fallbackCount > 0 ? (
+                <Badge variant="destructive">{t('fallbackCount', { count: fallbackCount })}</Badge>
+              ) : null}
             </CardFooter>
           </Card>
 
           <Card className="min-w-0" size="sm">
             <CardHeader>
-              <CardTitle>XML Preview</CardTitle>
-              <CardDescription>{result.empty ? 'Waiting for content' : 'Generated sibling XML tags'}</CardDescription>
+              <CardTitle>{t('previewTitle')}</CardTitle>
+              <CardDescription>{result.empty ? t('previewWaiting') : t('previewReady')}</CardDescription>
               <CardAction>
                 <Button type="button" size="sm" disabled={!result.xml} onClick={copyXml}>
-                  {copyState === 'success' ? (
-                    <CheckIcon data-icon="inline-start" />
-                  ) : (
-                    <ClipboardIcon data-icon="inline-start" />
-                  )}
-                  Copy XML
+                  <ClipboardIcon data-icon="inline-start" />
+                  {t('copyXml')}
                 </Button>
               </CardAction>
             </CardHeader>
@@ -249,28 +332,20 @@ export default function XmloomWorkbench() {
                     <EmptyMedia variant="icon">
                       <FileCodeIcon />
                     </EmptyMedia>
-                    <EmptyTitle>No XML yet</EmptyTitle>
-                    <EmptyDescription>Add content to generate preview.</EmptyDescription>
+                    <EmptyTitle>{t('emptyTitle')}</EmptyTitle>
+                    <EmptyDescription>{t('emptyDescription')}</EmptyDescription>
                   </EmptyHeader>
                 </Empty>
               ) : (
                 <pre
                   tabIndex={0}
-                  aria-label="Generated XML"
+                  aria-label={t('generatedXmlLabel')}
                   className="bg-muted text-foreground focus-visible:border-ring focus-visible:ring-ring/30 min-h-[360px] overflow-auto rounded-lg border p-4 text-sm leading-6 outline-none focus-visible:ring-3"
                 >
                   <code>{result.xml}</code>
                 </pre>
               )}
             </CardContent>
-
-            <CardFooter className="min-h-10 justify-between gap-2">
-              <p className="text-muted-foreground text-sm" aria-live="polite">
-                {copyState === 'success' ? 'Copied to clipboard.' : null}
-                {copyState === 'error' ? 'Clipboard failed. Select the preview text manually.' : null}
-              </p>
-              {copyState === 'error' ? <AlertCircleIcon className="text-destructive" aria-hidden="true" /> : null}
-            </CardFooter>
           </Card>
         </div>
       </div>

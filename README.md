@@ -2,12 +2,13 @@
 
 XMLoom은 사용자가 자연어로 대충 적은 입력을 예측 가능한 XML 형식으로 정리해주는 웹서비스입니다.
 
-초기 MVP는 OpenAI API나 LLM 없이 규칙 기반 변환으로 시작합니다. 사용자는 하나 이상의 Text field에 내용을 입력하고, XMLoom은 각 필드를 XML element로 변환한 뒤 결과를 미리보기, 복사, 초기화할 수 있게 합니다.
+초기 MVP는 OpenAI API나 LLM 없이 규칙 기반 변환으로 시작합니다. 사용자는 하나 이상의 Text field에 내용을 입력하고, 필요하면 child field를 추가해 nested XML을 만든 뒤 결과를 미리보기, 복사, 초기화할 수 있습니다.
 
 ## Current Status
 
-- Next.js 기반 초기 앱입니다.
-- 문서와 화면/개발 규칙을 먼저 정리한 뒤 규칙 기반 XML 변환 MVP를 구현합니다.
+- Next.js 기반 규칙 XML 변환 workbench입니다.
+- root wrapper 없는 sibling XML tag와 nested child tag 출력을 지원합니다.
+- EN/KO language toggle과 clipboard toast feedback을 제공합니다.
 - AI 보조 변환은 v1 이후 확장 후보이며, 현재 기본 동작으로 가정하지 않습니다.
 
 ## Tech Stack
@@ -17,6 +18,7 @@ XMLoom은 사용자가 자연어로 대충 적은 입력을 예측 가능한 XML
 - TypeScript `5`
 - Tailwind CSS `4`
 - shadcn/radix UI, lucide-react
+- next-intl, sonner
 - React Hook Form, Zod
 - TanStack Query
 - Zustand

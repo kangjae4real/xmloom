@@ -1,10 +1,11 @@
 export type XmlFieldInput = {
   name?: string;
   content?: string;
+  children?: XmlFieldInput[];
 };
 
 export type XmlIncludedField = {
-  index: number;
+  path: number[];
   tagName: string;
   originalName: string;
   usedFallback: boolean;
@@ -48,33 +49,62 @@ export function escapeXmlText(content: string) {
   return content.replace(XML_ENTITY_PATTERN, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function formatXmlElement(tagName: string, content: string) {
-  if (!LINE_BREAK_PATTERN.test(content)) {
-    return `<${tagName}>${escapeXmlText(content)}</${tagName}>`;
-  }
-
-  const contentLines = content.split(LINE_BREAK_PATTERN).map((line) => `  ${escapeXmlText(line)}`);
-
-  return [`<${tagName}>`, ...contentLines, `</${tagName}>`].join('\n');
+function getIndent(depth: number) {
+  return '  '.repeat(depth);
 }
 
-export function buildXmlDocument(fields: XmlFieldInput[]): XmlConversionResult {
-  const includedFields = fields.reduce<XmlIncludedField[]>((acc, field, index) => {
-    if (!field.content?.trim()) {
-      return acc;
-    }
+function getEscapedContentLines(content: string, depth: number) {
+  const contentIndent = getIndent(depth + 1);
+
+  return content.split(LINE_BREAK_PATTERN).map((line) => `${contentIndent}${escapeXmlText(line)}`);
+}
+
+export function formatXmlElement(tagName: string, content: string, children: string[] = [], depth = 0) {
+  const indent = getIndent(depth);
+
+  if (!children.length && !LINE_BREAK_PATTERN.test(content)) {
+    return `${indent}<${tagName}>${escapeXmlText(content)}</${tagName}>`;
+  }
+
+  const contentLines = content ? getEscapedContentLines(content, depth) : [];
+
+  return [`${indent}<${tagName}>`, ...contentLines, ...children, `${indent}</${tagName}>`].join('\n');
+}
+
+function buildXmlElements(
+  fields: XmlFieldInput[],
+  depth: number,
+  parentPath: number[],
+  includedFields: XmlIncludedField[],
+) {
+  return fields.reduce<string[]>((acc, field, index) => {
+    const childPath = [...parentPath, index];
+    const childIncludedFields: XmlIncludedField[] = [];
+    const childElements = buildXmlElements(field.children ?? [], depth + 1, childPath, childIncludedFields);
+    const hasContent = Boolean(field.content?.trim());
 
     const { tagName, usedFallback } = getSafeXmlTagName(field.name, index);
 
-    acc.push({
-      index,
+    if (!hasContent && !childElements.length) {
+      return acc;
+    }
+
+    includedFields.push({
+      path: childPath,
       tagName,
       originalName: field.name?.trim() ?? '',
       usedFallback,
     });
+    includedFields.push(...childIncludedFields);
+    acc.push(formatXmlElement(tagName, hasContent ? (field.content ?? '') : '', childElements, depth));
 
     return acc;
   }, []);
+}
+
+export function buildXmlDocument(fields: XmlFieldInput[]): XmlConversionResult {
+  const includedFields: XmlIncludedField[] = [];
+  const xmlElements = buildXmlElements(fields, 0, [], includedFields);
 
   if (!includedFields.length) {
     return {
@@ -84,14 +114,8 @@ export function buildXmlDocument(fields: XmlFieldInput[]): XmlConversionResult {
     };
   }
 
-  const childLines = includedFields.map((field) => {
-    const content = fields[field.index]?.content ?? '';
-
-    return formatXmlElement(field.tagName, content);
-  });
-
   return {
-    xml: childLines.join('\n'),
+    xml: xmlElements.join('\n'),
     includedFields,
     empty: false,
   };

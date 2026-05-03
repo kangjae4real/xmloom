@@ -24,6 +24,7 @@
 - Agent-local skill 사용법: `docs/agents/skills.md`
 - 커밋, lint, formatting, 코드 스타일: `docs/development/engineering.md`
 - 단계별 개발 우선순위: `docs/planning/roadmap.md`
+- locale message: `locales/en.json`, `locales/ko.json`
 - 실제 package와 script: `package.json`
 - shadcn 설정: `components.json`
 - shadcn skill: `.agents/skills/shadcn/SKILL.md`
