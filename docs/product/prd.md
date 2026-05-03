@@ -47,7 +47,7 @@ XMLoom은 입력 field와 text content를 받아 안전한 XML preview를 만들
 
 - `FR-001`: 사용자는 하나 이상의 입력 block을 만들 수 있다.
 - `FR-002`: 각 입력 block은 field name과 text content를 가진다.
-- `FR-003`: 변환 결과는 하나의 root element 아래에 입력 block 순서대로 child element를 만든다.
+- `FR-003`: 변환 결과는 입력 block 순서대로 같은 depth의 sibling XML element 목록을 만든다.
 - `FR-004`: field name이 안전한 XML tag name이면 child element name으로 사용한다.
 - `FR-005`: field name이 비어 있거나 안전하지 않으면 안정적인 순서 기반 fallback tag name을 사용한다.
 - `FR-006`: XML text content는 안전하게 escape한다.
@@ -72,14 +72,18 @@ XMLoom은 입력 field와 text content를 받아 안전한 XML preview를 만들
 
 ## Acceptance Criteria
 
-- 사용자가 field 2개를 입력하면 root 아래에 child element 2개가 순서대로 생성된다.
+- 사용자가 field 2개를 입력하면 sibling XML element 2개가 순서대로 생성된다.
 - `title` 같은 안전한 field name은 `<title>`로 변환된다.
 - `문서 제목`처럼 안전하지 않은 field name은 `field-1` 같은 fallback tag로 변환된다.
 - content에 `<`, `>`, `&`가 포함되어도 XML이 깨지지 않는다.
 - 모든 field가 비어 있으면 empty state가 표시된다.
 
+## V1 Decisions
+
+- root wrapper는 v1에서 출력하지 않는다.
+- preview는 별도 convert action 없이 입력 변경에 따라 즉시 갱신한다.
+- fallback tag에는 원본 field name을 attribute로 보존하지 않는다.
+
 ## Open Questions
 
-- fallback tag에 원본 field name을 `label` attribute로 보존할지 여부
-- root element name을 v1에서 고정할지, v2에서 editable option으로 열지 여부
-- preview를 입력 즉시 갱신할지, 명시적인 convert action 이후 갱신할지 여부
+- root wrapper option을 v2에서 열지 여부

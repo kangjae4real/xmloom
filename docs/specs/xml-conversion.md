@@ -12,7 +12,6 @@
 
 구현에서 사용하는 내부 shape는 달라질 수 있지만, MVP 변환기는 다음 개념을 입력으로 받는다.
 
-- `rootName`: optional string, 기본값 `xmloom`
 - `fields`: ordered list
 - 각 field:
   - `name`: optional string
@@ -24,15 +23,13 @@
 
 - 변환 가능한 field가 하나 이상 있으면 XML string을 반환한다.
 - 변환 가능한 field가 없으면 XML string 대신 empty state를 표시한다.
-- XML string은 root element 하나와 child element 목록으로 구성한다.
+- XML string은 root wrapper 없이 sibling element 목록으로 구성한다.
 
 예시:
 
 ```xml
-<xmloom>
-  <title>Hello XMLoom</title>
-  <summary>Rules-based XML preview</summary>
-</xmloom>
+<title>Hello XMLoom</title>
+<summary>Rules-based XML preview</summary>
 ```
 
 ## Field Inclusion
@@ -54,11 +51,11 @@ MVP의 안전한 tag name은 다음 정규식으로 판정한다.
 - fallback 번호는 전체 field index 기준으로 안정적으로 계산한다.
 - XML Name 전체 규격, unicode tag name, namespace prefix 지원은 MVP 이후로 미룬다.
 
-## Root Name Rule
+## Wrapper Rule
 
-- MVP 기본 root name은 `xmloom`이다.
-- root name option이 생기면 같은 tag name rule을 적용한다.
-- 안전하지 않은 root name은 `xmloom`으로 fallback한다.
+- MVP는 root wrapper element를 출력하지 않는다.
+- 모든 included field는 같은 depth의 sibling element로 출력한다.
+- root wrapper option은 v2 이후 필요가 생길 때 별도 스펙으로 추가한다.
 
 ## Escaping Rule
 
@@ -83,9 +80,10 @@ Escaping은 중복 적용으로 기존 entity를 망가뜨리지 않도록 변�
 
 - XML declaration은 MVP에서 출력하지 않는다.
 - indentation은 two spaces를 사용한다.
-- root open tag와 close tag는 별도 line에 둔다.
-- child element는 한 줄에 출력한다.
-- content에 newline이 포함된 경우에도 XML 안전성을 우선하며, pretty formatting 고도화는 v2 이후로 미룬다.
+- content가 single-line이면 element도 한 줄에 출력한다.
+- content에 newline이 포함되면 open tag, content, close tag를 별도 line으로 출력한다.
+- multi-line content의 각 line은 two spaces로 indent한다.
+- multi-line content 내부의 빈 line도 보존한다.
 
 ## Error And Empty States
 
@@ -104,13 +102,19 @@ content: Hello & XML
 
 name: 문서 제목
 content: <draft>
+
+name: context
+content: line 1
+line 2
 ```
 
 출력:
 
 ```xml
-<xmloom>
-  <title>Hello &amp; XML</title>
-  <field-2>&lt;draft&gt;</field-2>
-</xmloom>
+<title>Hello &amp; XML</title>
+<field-2>&lt;draft&gt;</field-2>
+<context>
+  line 1
+  line 2
+</context>
 ```

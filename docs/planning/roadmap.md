@@ -40,7 +40,7 @@
 
 목표:
 
-- root element name을 사용자가 조정할 수 있게 한다.
+- root wrapper option이나 template preset을 필요에 따라 제공한다.
 - 자주 쓰는 XML template 또는 preset을 제공한다.
 - 더 명확한 validation message와 preview affordance를 추가한다.
 

@@ -74,3 +74,85 @@ Related Docs:
 
 - `docs/specs/screen.md`
 - `docs/product/prd.md`
+
+## 2026-05-03 - SPEC-XML-2026-05-03-002
+
+Status: V1 implementation correction
+
+Area: XML conversion
+
+Summary: XML 변환 출력에서 root wrapper를 제거했다.
+
+Changed:
+
+- 변환 결과는 root wrapper 없이 sibling XML element 목록으로 구성한다.
+- `rootName` 입력 모델과 root name fallback rule을 제거한다.
+- formatting rule은 각 element를 한 줄로 출력하는 기준으로 단순화한다.
+
+Reason:
+
+- XMLoom의 MVP 요구사항은 여러 입력을 여러 XML tag로 변환하는 것이며, wrapper element는 필수 요구사항이 아니다.
+
+Impact:
+
+- `buildXmlDocument`는 `<xmloom>` open/close tag를 만들지 않는다.
+- preview, copy, empty state는 기존처럼 동작하되 출력 XML shape만 바뀐다.
+
+Related Docs:
+
+- `docs/specs/xml-conversion.md`
+- `docs/product/prd.md`
+
+## 2026-05-03 - SPEC-XML-2026-05-03-003
+
+Status: V1 implementation correction
+
+Area: XML conversion
+
+Summary: multi-line content의 XML 출력 가독성을 개선했다.
+
+Changed:
+
+- single-line content는 기존처럼 `<tag>content</tag>` 한 줄로 출력한다.
+- newline이 포함된 content는 open tag, indented content lines, close tag로 나누어 출력한다.
+- multi-line content의 각 line은 two spaces로 indent한다.
+
+Reason:
+
+- 긴 자연어 입력이나 줄바꿈이 있는 context를 한 줄 element에 넣으면 preview 가독성이 떨어진다.
+
+Impact:
+
+- copy 결과가 multi-line 입력에 대해 더 읽기 쉬운 XML block 형태가 된다.
+- XML escaping 규칙과 field inclusion rule은 그대로 유지된다.
+
+Related Docs:
+
+- `docs/specs/xml-conversion.md`
+
+## 2026-05-03 - SPEC-SCREEN-2026-05-03-002
+
+Status: V1 implementation decision
+
+Area: Responsive screen
+
+Summary: preview 갱신 방식을 즉시 갱신으로 확정했다.
+
+Changed:
+
+- editing state에서 XML preview는 입력 변경에 따라 즉시 갱신된다.
+- 별도 convert action은 v1 화면에 두지 않는다.
+
+Reason:
+
+- 규칙 기반 변환은 비용이 낮고 deterministic하므로 사용자가 입력과 결과를 바로 비교하는 편이 더 단순하다.
+
+Impact:
+
+- copy action은 현재 preview를 복사한다.
+- empty state는 content가 모두 비어 있을 때 즉시 복귀한다.
+
+Related Docs:
+
+- `docs/specs/screen.md`
+- `docs/product/prd.md`

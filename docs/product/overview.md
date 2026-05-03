@@ -24,8 +24,8 @@ XMLoom은 대충 작성된 자연어 입력을 XML 형식으로 빠르게 정리
 
 ## Rules-Based Conversion
 
-- 기본 root element는 `xmloom`으로 둔다.
-- 각 입력 블록은 root 아래의 child element가 된다.
+- 변환 결과는 root wrapper 없이 복수 XML tag 목록으로 출력한다.
+- 각 입력 블록은 같은 depth의 sibling element가 된다.
 - field name이 안전한 XML tag name이면 element name으로 사용한다.
 - field name이 비어 있거나 안전하지 않으면 `field-1`, `field-2`처럼 순서 기반 이름을 사용한다.
 - 원본 field name이 tag name으로 쓰이지 못한 경우, 구현 단계에서 필요하면 `label` attribute로 보존할 수 있다.

@@ -57,7 +57,7 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 ## Required UI States
 
 - Empty: 입력이 없을 때 변환 결과가 아직 없음을 보여준다.
-- Editing: 사용자가 입력 중일 때 preview가 즉시 또는 명확한 변환 액션 후 갱신된다.
+- Editing: 사용자가 입력 중일 때 preview가 즉시 갱신된다.
 - Invalid field name: 안전하지 않은 field name은 fallback tag name으로 변환되며, 필요하면 보조 문구로 원인을 알려준다.
 - Copy success: 복사 완료 상태를 짧게 표시한다.
 - Copy failure: clipboard API 실패 시 사용자가 결과를 직접 선택할 수 있게 preview는 항상 읽을 수 있어야 한다.
