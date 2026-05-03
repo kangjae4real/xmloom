@@ -10,7 +10,7 @@
 2. `README.md`
 3. `docs/README.md`
 4. 현재 작업과 관련된 `docs/**/*.md`
-5. shadcn/ui 작업이면 `docs/agents/skills.md`와 `.agents/skills/shadcn/SKILL.md`
+5. shadcn/ui 작업이면 `docs/agents/skills.md`를 읽고, 로컬 shadcn/ui skill이 설치되어 있으면 해당 skill 문서
 6. 관련 source file과 config file
 7. Next.js 관련 변경이면 `node_modules/next/dist/docs/`의 관련 문서
 
@@ -27,8 +27,8 @@
 - locale message: `locales/en.json`, `locales/ko.json`
 - 실제 package와 script: `package.json`
 - shadcn 설정: `components.json`
-- shadcn skill: `.agents/skills/shadcn/SKILL.md`
-- Claude shadcn skill symlink: `.claude/skills/shadcn`
+- optional local shadcn skill: `.agents/skills/shadcn/SKILL.md`
+- optional Claude shadcn skill symlink: `.claude/skills/shadcn`
 - global theme token: `src/app/globals.css`
 
 ## Work Protocol
@@ -36,7 +36,7 @@
 - 먼저 `git status --short`로 현재 변경 상태를 확인한다.
 - 사용자가 만든 변경은 되돌리지 않는다.
 - repo에 이미 있는 패턴과 helper를 우선 사용한다.
-- shadcn component를 다루는 작업은 local shadcn skill을 먼저 사용한다.
+- shadcn component를 다루는 작업은 로컬 shadcn skill이 있으면 먼저 사용한다.
 - 문서와 코드가 다르면 먼저 실제 코드와 설정 파일을 확인하고, 필요한 경우 문서 갱신도 같이 제안하거나 수행한다.
 - 기능 구현 전후로 관련 문서가 오래되지 않았는지 확인한다.
 - 큰 변경은 구현, 검증, 문서 반영이 한 세트가 되게 한다.

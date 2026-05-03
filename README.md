@@ -64,6 +64,7 @@ pnpm build
 - MVP 변환은 deterministic 해야 합니다. 같은 입력은 같은 XML을 만들어야 합니다.
 - XML 결과는 escape, validation, empty state를 명확히 처리합니다.
 - UI는 shadcn/radix와 Tailwind CSS 4 기반의 기존 설정을 우선 사용합니다.
-- shadcn component를 다룰 때는 `.agents/skills/shadcn/SKILL.md` 또는 `.claude/skills/shadcn` skill을 먼저 사용합니다.
+- shadcn/ui 작업이 많다면 Codex 또는 Claude에 shadcn/ui skill을 로컬로 설치해두면 컴포넌트 추가, 조합, 업데이트 규칙을 일관되게 유지하는 데 유용합니다.
+- 로컬 agent skill 폴더인 `.agents/`, `.claude/`는 개인 개발 환경 설정이므로 git에서 추적하지 않습니다.
 - 이 프로젝트의 Next.js는 기존 지식과 다를 수 있으므로, Next.js 관련 코드를 작성하기 전 `node_modules/next/dist/docs/`의 관련 문서를 확인합니다.
 - PRD나 스펙을 바꾸는 작업은 `docs/changelog/`의 변경 이력도 함께 갱신합니다.

@@ -4,17 +4,17 @@
 
 ## shadcn/ui
 
-XMLoom에는 shadcn/ui 작업을 위한 local skill이 설치되어 있다.
+XMLoom은 shadcn/ui 작업을 위해 local skill을 설치해두면 더 효율적으로 작업할 수 있다. `.agents/`, `.claude/`는 개인 agent 환경 설정이므로 git에서 추적하지 않는다.
 
-- Canonical skill path: `.agents/skills/shadcn/SKILL.md`
-- Claude skill path: `.claude/skills/shadcn`
-- `.claude/skills/shadcn`은 `../../.agents/skills/shadcn`을 가리키는 symlink다.
+- 권장 Codex skill path: `.agents/skills/shadcn/SKILL.md`
+- 권장 Claude skill path: `.claude/skills/shadcn`
+- Claude path는 필요하면 `.agents/skills/shadcn`을 가리키는 symlink로 둔다.
 
-shadcn component를 추가, 수정, 디버깅, 스타일링, 조합할 때는 먼저 이 skill을 사용한다. Agent 환경에서 project-local skill이 자동으로 로드되지 않으면 `.agents/skills/shadcn/SKILL.md`를 직접 읽고 그 지침을 따른다.
+shadcn component를 추가, 수정, 디버깅, 스타일링, 조합할 때는 로컬 skill이 있으면 먼저 사용한다. Agent 환경에서 skill이 자동으로 로드되지 않으면 설치된 `SKILL.md`를 직접 읽고 그 지침을 따른다.
 
 ## Required Workflow For shadcn Work
 
-1. `.agents/skills/shadcn/SKILL.md`를 읽는다.
+1. 로컬 shadcn/ui skill이 설치되어 있으면 해당 `SKILL.md`를 읽는다.
 2. `components.json`에서 현재 shadcn 설정을 확인한다.
 3. 필요하면 `pnpm dlx shadcn@latest info`로 project context를 갱신한다.
 4. 새 component가 필요하면 registry를 검색하거나 docs를 확인한 뒤 추가한다.

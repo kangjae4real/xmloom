@@ -8,7 +8,8 @@
 - App code는 `src/` 아래에 둔다.
 - import alias는 `@/*`가 `src/*`를 가리킨다.
 - shadcn generated component는 `src/components/shadcn` 아래에 둔다.
-- shadcn/ui 작업 전에는 [Agent Skills](../agents/skills.md)와 `.agents/skills/shadcn/SKILL.md`를 확인한다.
+- shadcn/ui 작업 전에는 [Agent Skills](../agents/skills.md)를 확인하고, 로컬 shadcn/ui skill이 설치되어 있으면 함께 확인한다.
+- `.agents/`, `.claude/`는 개인 agent skill 환경이므로 git에서 추적하지 않는다.
 - locale message는 repo root의 `locales/en.json`, `locales/ko.json`을 기준으로 관리한다.
 
 ## Commands
