@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ClipboardIcon, FileCodeIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react';
 import { Badge } from '@/components/shadcn/badge';
@@ -25,6 +25,7 @@ import {
   FieldTitle,
 } from '@/components/shadcn/field';
 import { Input } from '@/components/shadcn/input';
+import { ScrollArea } from '@/components/shadcn/scroll-area';
 import { Textarea } from '@/components/shadcn/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/shadcn/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip';
@@ -113,10 +114,39 @@ export default function XmloomWorkbench() {
   const { locale, setLocale, t } = useLocaleController();
   const [fields, setFields] = useState<WorkbenchField[]>(INITIAL_FIELDS);
   const [nextFieldId, setNextFieldId] = useState(2);
+  const fieldRefs = useRef(new Map<string, HTMLDivElement>());
+  const pendingScrollFieldIdRef = useRef<string | null>(null);
 
   const result = useMemo(() => buildXmlDocument(fields), [fields]);
   const totalFields = countAllFields(fields);
   const fallbackCount = result.includedFields.filter((field) => field.usedFallback).length;
+
+  useEffect(() => {
+    const fieldId = pendingScrollFieldIdRef.current;
+
+    if (!fieldId) {
+      return;
+    }
+
+    const fieldElement = fieldRefs.current.get(fieldId);
+
+    if (!fieldElement) {
+      return;
+    }
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      fieldElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      fieldElement.querySelector<HTMLInputElement>('input')?.focus({
+        preventScroll: true,
+      });
+      pendingScrollFieldIdRef.current = null;
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [fields]);
 
   function getNewField() {
     const field = createField(`field-${nextFieldId}`);
@@ -132,12 +162,14 @@ export default function XmloomWorkbench() {
   function addField() {
     const field = getNewField();
 
+    pendingScrollFieldIdRef.current = field.id;
     setFields((currentFields) => [...currentFields, field]);
   }
 
   function addChild(parentId: string) {
     const field = getNewField();
 
+    pendingScrollFieldIdRef.current = field.id;
     setFields((currentFields) => addChildToField(currentFields, parentId, field));
   }
 
@@ -178,7 +210,17 @@ export default function XmloomWorkbench() {
     const canRemove = depth > 0 || siblingCount > 1;
 
     return (
-      <Field key={field.id} data-invalid={hasInvalidName || undefined}>
+      <Field
+        key={field.id}
+        ref={(node) => {
+          if (node) {
+            fieldRefs.current.set(field.id, node);
+          } else {
+            fieldRefs.current.delete(field.id);
+          }
+        }}
+        data-invalid={hasInvalidName || undefined}
+      >
         <FieldContent
           className={cn('bg-background gap-3 rounded-lg border p-3', depth > 0 && 'border-l-primary/40 border-l-2')}
         >
@@ -253,9 +295,9 @@ export default function XmloomWorkbench() {
   }
 
   return (
-    <main className="bg-background text-foreground min-h-screen">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-4 py-4 md:px-6 md:py-6 lg:px-8 lg:py-8">
-        <header className="flex min-h-14 flex-col justify-between gap-4 md:min-h-16 md:flex-row md:items-center">
+    <main className="bg-background text-foreground h-dvh overflow-hidden">
+      <div className="mx-auto flex h-full w-full max-w-[1200px] flex-col gap-4 overflow-hidden px-4 py-4 md:gap-5 md:px-6 md:py-6 lg:gap-6 lg:px-8 lg:py-8">
+        <header className="flex shrink-0 flex-col justify-between gap-4 md:min-h-16 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-heading text-2xl font-medium tracking-normal md:text-3xl">{t('title')}</h1>
@@ -283,9 +325,9 @@ export default function XmloomWorkbench() {
           </div>
         </header>
 
-        <div className="grid min-h-[calc(100vh-7rem)] gap-4 md:grid-cols-[minmax(320px,5fr)_minmax(0,7fr)] md:gap-5 lg:gap-6">
-          <Card className="min-w-0" size="sm">
-            <CardHeader>
+        <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 md:grid-cols-[minmax(320px,5fr)_minmax(0,7fr)] md:grid-rows-1 md:gap-5 lg:gap-6">
+          <Card className="min-h-0 min-w-0" size="sm">
+            <CardHeader className="shrink-0">
               <CardTitle>{t('inputsTitle')}</CardTitle>
               <CardDescription>{t('fieldCount', { count: totalFields })}</CardDescription>
               <CardAction>
@@ -296,13 +338,17 @@ export default function XmloomWorkbench() {
               </CardAction>
             </CardHeader>
 
-            <CardContent>
-              <FieldGroup className="gap-4">
-                {fields.map((field, index) => renderField(field, index, fields.length, 0, [index]))}
-              </FieldGroup>
+            <CardContent className="min-h-0 flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="pr-3 pb-1">
+                  <FieldGroup className="gap-4">
+                    {fields.map((field, index) => renderField(field, index, fields.length, 0, [index]))}
+                  </FieldGroup>
+                </div>
+              </ScrollArea>
             </CardContent>
 
-            <CardFooter className="justify-between gap-2">
+            <CardFooter className="shrink-0 justify-between gap-2">
               <Button type="button" variant="outline" onClick={resetFields}>
                 <RotateCcwIcon data-icon="inline-start" />
                 {t('reset')}
@@ -313,8 +359,8 @@ export default function XmloomWorkbench() {
             </CardFooter>
           </Card>
 
-          <Card className="min-w-0" size="sm">
-            <CardHeader>
+          <Card className="min-h-0 min-w-0" size="sm">
+            <CardHeader className="shrink-0">
               <CardTitle>{t('previewTitle')}</CardTitle>
               <CardDescription>{result.empty ? t('previewWaiting') : t('previewReady')}</CardDescription>
               <CardAction>
@@ -325,25 +371,31 @@ export default function XmloomWorkbench() {
               </CardAction>
             </CardHeader>
 
-            <CardContent className="flex min-h-[420px] flex-col">
+            <CardContent className="min-h-0 flex-1 overflow-hidden">
               {result.empty ? (
-                <Empty className="min-h-[360px] border">
-                  <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                      <FileCodeIcon />
-                    </EmptyMedia>
-                    <EmptyTitle>{t('emptyTitle')}</EmptyTitle>
-                    <EmptyDescription>{t('emptyDescription')}</EmptyDescription>
-                  </EmptyHeader>
-                </Empty>
+                <ScrollArea className="h-full rounded-lg border">
+                  <div className="flex min-h-full items-center justify-center p-4">
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <FileCodeIcon />
+                        </EmptyMedia>
+                        <EmptyTitle>{t('emptyTitle')}</EmptyTitle>
+                        <EmptyDescription>{t('emptyDescription')}</EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  </div>
+                </ScrollArea>
               ) : (
-                <pre
-                  tabIndex={0}
-                  aria-label={t('generatedXmlLabel')}
-                  className="bg-muted text-foreground focus-visible:border-ring focus-visible:ring-ring/30 min-h-[360px] overflow-auto rounded-lg border p-4 text-sm leading-6 outline-none focus-visible:ring-3"
-                >
-                  <code>{result.xml}</code>
-                </pre>
+                <ScrollArea className="bg-muted h-full rounded-lg border">
+                  <pre
+                    tabIndex={0}
+                    aria-label={t('generatedXmlLabel')}
+                    className="text-foreground focus-visible:border-ring focus-visible:ring-ring/30 min-h-full min-w-max p-4 text-sm leading-6 outline-none focus-visible:ring-3"
+                  >
+                    <code>{result.xml}</code>
+                  </pre>
+                </ScrollArea>
               )}
             </CardContent>
           </Card>

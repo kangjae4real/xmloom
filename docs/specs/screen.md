@@ -1,6 +1,6 @@
 # Screen Spec
 
-스펙 버전: `SPEC-SCREEN-2026-05-03-003`  
+스펙 버전: `SPEC-SCREEN-2026-05-03-004`  
 상태: Draft  
 마지막 갱신일: 2026-05-03
 
@@ -22,12 +22,15 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 - 주요 영역 간 gap은 mobile `16px`, tablet `20px`, desktop `24px`다.
 - desktop에서 main content의 권장 max width는 `1200px`다.
 - card radius는 shadcn 기본 radius를 따르되, 반복 item과 tool panel은 `8px` 이하 느낌을 유지한다.
+- app shell은 `100dvh` 높이를 기준으로 하고 page 자체는 스크롤되지 않게 한다.
+- 입력 panel과 preview panel은 각각 내부 scroll area를 가진다.
 
 ## App Shell
 
 - 상단에는 product name, 짧은 상태 정보, 주요 액션만 둔다.
 - 상단 우측에는 EN/KO 언어 toggle을 둔다.
 - 본문은 입력 영역과 XML preview 영역으로 구성한다.
+- 본문 영역은 남은 viewport height 안에서만 렌더링되며, 긴 입력과 긴 XML은 각 card 내부에서 스크롤된다.
 - marketing hero, 장식용 gradient, 기능 설명용 큰 섹션은 만들지 않는다.
 - 사용자가 화면에 들어오면 바로 field 입력과 XML 결과 영역을 볼 수 있어야 한다.
 
@@ -35,6 +38,7 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 
 - 단일 column layout을 사용한다.
 - 순서는 입력 영역, action row, XML preview 순서다.
+- page scroll 대신 입력 card와 preview card 내부 scroll을 사용한다.
 - header 높이는 약 `56px`를 기준으로 한다.
 - 입력 블록은 세로로 쌓고, block 내부 gap은 `8px-12px`를 사용한다.
 - child 입력 블록은 parent 아래에서 border-left와 padding으로 계층을 드러낸다.
@@ -61,7 +65,9 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 - Empty: 입력이 없을 때 변환 결과가 아직 없음을 보여준다.
 - Editing: 사용자가 입력 중일 때 preview가 즉시 갱신된다.
 - Nested editing: parent field 아래 child field를 추가, 편집, 삭제할 수 있다.
+- Auto-scroll on add: 새 top-level field나 child field를 추가하면 새 field가 보이도록 입력 panel을 자동 스크롤한다.
 - Invalid field name: 안전하지 않은 field name은 fallback tag name으로 변환되며, 필요하면 보조 문구로 원인을 알려준다.
+- Locale loading: local storage의 locale을 읽는 동안 서비스 화면 대신 full-height loading layer를 보여준다.
 - Language switch: EN/KO toggle로 서비스 문구를 전환한다.
 - Copy success: 복사 완료 상태를 shadcn/ui `sonner` toast로 짧게 표시한다.
 - Copy failure: clipboard API 실패는 shadcn/ui `sonner` toast로 알리고, 사용자가 결과를 직접 선택할 수 있게 preview는 항상 읽을 수 있어야 한다.
@@ -72,6 +78,7 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 - shadcn component를 새로 추가하거나 수정할 때는 [Agent Skills](../agents/skills.md)의 shadcn/ui workflow를 따른다.
 - language option처럼 2-7개 선택지가 있는 control은 shadcn/ui `ToggleGroup`을 사용한다.
 - 일시적인 성공/실패 feedback은 shadcn/ui `sonner` toast를 사용한다.
+- 입력 panel과 preview panel의 내부 스크롤은 shadcn/ui `ScrollArea`를 사용한다.
 - button에는 가능한 lucide-react icon을 함께 사용한다.
 - field 추가/삭제, 복사, 초기화 같은 도구 액션은 icon button 또는 icon+text button을 사용한다.
 - 숫자, 토글, option 선택이 생기면 input type에 맞는 control을 사용한다.
@@ -82,5 +89,6 @@ Tailwind CSS의 기본 breakpoint 감각을 따른다. 구현 시 breakpoint 이
 - 입력 field와 preview에는 명확한 accessible name을 제공한다.
 - keyboard만으로 field 추가, 삭제, 변환, 복사를 수행할 수 있어야 한다.
 - 언어 toggle은 현재 선택 언어를 assistive technology가 알 수 있는 control이어야 한다.
+- locale loading layer는 status role 또는 동등한 accessible loading state를 제공해야 한다.
 - error나 상태 변화는 시각 정보만으로 전달하지 않는다.
 - preview code block은 충분한 contrast와 focus outline을 유지한다.

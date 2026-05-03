@@ -220,3 +220,35 @@ Related Docs:
 - `docs/specs/screen.md`
 - `docs/product/prd.md`
 - `docs/development/engineering.md`
+
+## 2026-05-03 - SPEC-SCREEN-2026-05-03-004
+
+Status: V1 UX improvement
+
+Area: Responsive screen
+
+Summary: viewport-fixed shell, internal panel scrolling, locale loading, and add-field auto-scroll 규칙을 추가했다.
+
+Changed:
+
+- app shell은 `100dvh` 높이를 기준으로 하고 page 자체는 스크롤되지 않게 한다.
+- input card와 preview card는 각각 내부 scroll area를 가진다.
+- local storage locale을 읽는 동안 full-height loading layer를 보여준다.
+- 새 top-level field나 child field를 추가하면 새 field가 보이도록 입력 panel을 자동 스크롤한다.
+
+Reason:
+
+- 서비스 전체가 스크롤되면 입력과 preview를 반복 비교하기 어렵다.
+- locale 초기화 중 기본 언어가 잠깐 보이는 현상을 줄여야 한다.
+- 새 field 추가 후 직접 하단으로 이동해야 하는 반복 조작을 줄여야 한다.
+
+Impact:
+
+- Workbench layout은 `h-dvh`, `min-h-0`, internal `ScrollArea` 조합을 유지해야 한다.
+- locale provider는 locale이 결정되기 전 children을 바로 노출하지 않아야 한다.
+- field 추가 로직은 새 field element로 자동 이동해야 한다.
+
+Related Docs:
+
+- `docs/specs/screen.md`
+- `docs/development/engineering.md`

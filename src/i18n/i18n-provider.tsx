@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createTranslator } from 'next-intl';
+import { LoaderCircleIcon } from 'lucide-react';
 import enMessages from '../../locales/en.json';
 import koMessages from '../../locales/ko.json';
 
@@ -28,30 +29,43 @@ function isLocale(value: string | null): value is Locale {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+  const [locale, setLocaleState] = useState<Locale | null>(null);
 
   useEffect(() => {
-    const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    let nextLocale = DEFAULT_LOCALE;
 
-    if (isLocale(storedLocale)) {
-      const timeout = window.setTimeout(() => setLocaleState(storedLocale), 0);
+    try {
+      const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY);
 
-      return () => window.clearTimeout(timeout);
+      if (isLocale(storedLocale)) {
+        nextLocale = storedLocale;
+      } else {
+        window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+      }
+    } catch {
+      nextLocale = DEFAULT_LOCALE;
     }
+
+    const timeout = window.setTimeout(() => setLocaleState(nextLocale), 0);
+
+    return () => window.clearTimeout(timeout);
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = locale;
+    if (locale) {
+      document.documentElement.lang = locale;
+    }
   }, [locale]);
 
+  const effectiveLocale = locale ?? DEFAULT_LOCALE;
   const translator = useMemo(
     () =>
       createTranslator({
-        locale,
-        messages: messages[locale],
+        locale: effectiveLocale,
+        messages: messages[effectiveLocale],
         namespace: 'Workbench',
       }),
-    [locale],
+    [effectiveLocale],
   );
 
   const t = useCallback<LocaleContextValue['t']>(
@@ -61,15 +75,31 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<LocaleContextValue>(
     () => ({
-      locale,
+      locale: effectiveLocale,
       setLocale: (nextLocale) => {
         setLocaleState(nextLocale);
-        window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+
+        try {
+          window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+        } catch {
+          // The UI can still switch language if persistent storage is unavailable.
+        }
       },
       t,
     }),
-    [locale, t],
+    [effectiveLocale, t],
   );
+
+  if (!locale) {
+    return (
+      <div className="bg-background text-foreground flex h-dvh items-center justify-center">
+        <div role="status" aria-live="polite" className="flex items-center justify-center">
+          <LoaderCircleIcon className="text-muted-foreground size-6 animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading XMLoom</span>
+        </div>
+      </div>
+    );
+  }
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
